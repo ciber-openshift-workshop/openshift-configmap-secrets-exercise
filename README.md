@@ -31,7 +31,7 @@ svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09 (at Docker Hub)
 1. Run the `oc new-app` command on a built-in template with three parameters:
    ```
    $ oc new-app postgresql-ephemeral --param=POSTGRESQL_USER=$POSTGRESQL_USER \
-        --param=POSTGRESQL_PASSWORD=$POSTGRESLQ_PASSWORD \
+        --param=POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD \
         --param=POSTGRESQL_DATABASE=yaaap-db
    ...
    --> Creating resources ...
@@ -53,7 +53,7 @@ svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09 (at Docker Hub)
 ### Deploy the Spring Boot app from a Docker image
 1. Deploy the app from an existing Docker image
    ```
-   $ oc new-appp svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09
+   $ oc new-app svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09
    ```
 
 This is going to fail, as the Spring Boot properties for the DB connection are not properly set up yet.
@@ -68,7 +68,37 @@ From looking at `application.properties` in the source and the logs of the faili
 * spring.datasource.username
 * spring.datasource.password
 
+1. Specify the data source url in a configmap:
+   ```
+   $ oc create configmap yaapp--from-literal=SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/yaapp-db
+   ...
+   ```
+   Explanation of the URL modification: We just changed the host name part of the data source url, from the default
+   `localhost` to `postgresql` above. The host name `postgresql` is not a real DNS name, it is just a Kubernetes service 
+   name, corresponding to the one create from the Postgresql template above. Kubernetes/Openshift uses _service discovery_ 
+   to map such names into cluster-internal IP addresses, when pods refer to each other.
+   
+1. Inspect the newly create config map:
+   ```
+   $ oc describe configmap yaapp
+   Name:         yaapp
+   ...
+   Data
+   ====
+   SPRING_DATASOURCE_URL:
+   ...
+   ```
+1. Attach the new config map as environment variables of the deployment config:
+```
+$ oc set env dc/yappp --from configmap/yaapp
+deploymentconfig.apps.openshift.io/yaapp updated
+```
+This configuration change will trigger a redeploy of the pod (and also recreation of the replication controller).
+Verify that by checking the output of `oc get pod -w`.
 
+1. Verify progress in failing application logs.
+After a while this deployment also fails with `ChrashLoopBackState`. Verify that we made some progress in the 
+application log. The logs should indicate that we got past the previous connection errors, but are now left with authentication errors against the database.
 
 
 
