@@ -51,11 +51,32 @@ svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09 (at Docker Hub)
   1. Check the logs of the running pod (`oc get pods`, ` oc logs <POD-NAME>`) 
 
 ### Deploy the Spring Boot app from a Docker image
+1. Deploy the app from an existing Docker image
+   ```
+   $ oc new-appp svejkciber/yaapp:9af679e1258e3ca9a1baca4a4cf2f11da9374c09
+   ```
 
 This is going to fail, as the Spring Boot properties for the DB connection are not properly set up yet.
+Verify that the deployment failed by checking the logs of the pod being created and, and the project 
+status (`oc status`). After a while the project status and pod information (`oc get pods`) indicates 
+that the pod is crash-looping.
+
+### Configure DB connection with config maps and secrets
+We are going to fix the failed start-up of the micro service by adding the required configuration as `ConfigMaps` and `Secrets`. These are the preferred methods in Openshift and Kubernetes of configuring applications without redeployment.
+From looking at `application.properties` in the source and the logs of the failing pods, we find that the settings of the micro service are:
+* spring.datasource.url
+* spring.datasource.username
+* spring.datasource.password
+
+
+
 
 
 ## Bonus
 If time permits, you may try one or both of the following:
 1. Build the Spring Boot app from source in Openshift, that is, use the Git repo of the app as an input
    source to a BuildConfig.
+1. A build like the above, will probably not use the existing jib configuration in the `pom.xml` file. 
+   It will likely build a default Docker image from the Spring Boot JAR. You can try to fix that by forking the 
+   repo, and figure out how to configure Jib to publish to an internal Docker registry when building on Openshift. 
+   
