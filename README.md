@@ -2,9 +2,9 @@
 A simple exercise in configuring a microservice with a DB dependency through config maps and secrets.
 
 ## Goals
-# Deploy a PostgreSQL database from a built-in Openshift template.
-# Deploy a micro service, a Spring Boot app from a prebuilt Docker image.
-# Configure the micro service's dependencies to the database with config maps and secrets.
+* Deploy a PostgreSQL database from a built-in Openshift template.
+* Deploy a micro service, a Spring Boot app from a prebuilt Docker image.
+* Configure the micro service's dependencies to the database with config maps and secrets.
 
 
 ## Steps
