@@ -130,8 +130,8 @@ application log. The logs should indicate that we got past the previous connecti
    ```
    $ oc expose dc/yaapp --port=8080
    service/yaapp exposed
-   $ oc expose svc yaapp route.route.openshift.io/yaapp exposed
-   $ oc expose dc/yaapp --port=8080
+   $ oc expose svc yaapp
+   route.route.openshift.io/yaapp exposed
    ```
    _NB_: The first of these commands is a workaround for a deficiency in the prebuilt Docker image:
    it was built without metainformation required by Openshift to describe exposed ports. It is normally 
